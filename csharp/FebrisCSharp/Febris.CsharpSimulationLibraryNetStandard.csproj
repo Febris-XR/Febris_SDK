@@ -6,16 +6,13 @@
 
   <!-- NuGet pack metadata (the gated SDK deliverable, dotnet pack -c Release). -->
   <PropertyGroup>
-    <!-- PLACEHOLDER PackageId. The public package name is an owner decision that
-         rides the nuget.org account name (QUESTIONS.md Q16). Rename before any
-         publish. Do NOT push this id anywhere.
-
-         The rationale here previously cited the de-branding mandate in
-         docs/OSS_SDK_DISTRIBUTION.md section 1. CORRECTED 2026-08-28: that mandate
-         was reversed on 2026-08-27. QUESTIONS.md records "Brand (Q17): stays
-         Febris, no de-branding anywhere", and the distribution doc now carries the
-         correction inline. The id is still a placeholder, for the account-name
-         reason above rather than for de-branding. -->
+    <!-- W5 RULED 2026-08-30 by the owner: Febris.Simulation.XApiSdk IS the final
+         PackageId (the former placeholder text, ruled as-is). pack.yml asserts the
+         packed id equals this ruling, so an accidental rename here fails the
+         publish audit. Trusted Publishing policy glob on nuget.org carries the
+         same id. (Historical: the id was a placeholder pending the account-name
+         decision; a de-branding rationale was corrected out 2026-08-28, brand
+         stays Febris per Q17.) -->
     <PackageId>Febris.Simulation.XApiSdk</PackageId>
     <Version>0.1.0-preview</Version>
     <Authors>Febris</Authors>

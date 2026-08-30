@@ -3,14 +3,14 @@ name: pack
 # Pack the Febris xAPI simulation SDK and push it to nuget.org, versioned from the
 # tag that triggered the run.
 #
-# == THE PACKAGE ID IS STILL AN OWNER DECISION (HANDOFF_03 W5) =====================
+# == THE PACKAGE ID IS RULED (HANDOFF_03 W5, owner, 2026-08-30) ====================
 #
-# The csproj deliberately carries the placeholder id Febris.Simulation.XApiSdk with a
-# comment saying "do NOT push this id anywhere". A nuget.org id, once pushed, exists
-# forever: the version can be unlisted but the id is claimed and the number burned.
-# So this workflow REFUSES the publish path while the packed id equals the
-# placeholder. Dry runs still work, so CI is rehearsable end to end before the id is
-# ruled. When the owner records the final id in the csproj, the guard clears itself.
+# Febris.Simulation.XApiSdk is the final id. The audit below now asserts the
+# PACKED id equals the ruling, so an accidental csproj rename fails the publish
+# audit instead of silently claiming a second nuget.org id (an id, once pushed,
+# exists forever). The nuget.org Trusted Publishing policy glob carries the same
+# id, bound to this repository + this workflow file + the nuget-release
+# environment.
 #
 # == WHAT THE AUDIT ENFORCES =======================================================
 #
@@ -48,9 +48,9 @@ env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 'true'
   NUGET_SOURCE: 'https://api.nuget.org/v3/index.json'
   PROJECT: 'csharp/FebrisCSharp/Febris.CsharpSimulationLibraryNetStandard.csproj'
-  # The W5 placeholder. The refusal below compares the PACKED id against this value,
-  # so ruling the final id in the csproj is the single change that arms publishing.
-  PLACEHOLDER_ID: 'Febris.Simulation.XApiSdk'
+  # The W5-ruled id (owner, 2026-08-30). The audit asserts the PACKED id equals
+  # this value on every run.
+  RULED_ID: 'Febris.Simulation.XApiSdk'
 
 jobs:
   verify:
@@ -147,7 +147,7 @@ jobs:
           import xml.etree.ElementTree as ET
 
           version = os.environ["VERSION"]
-          placeholder = os.environ["PLACEHOLDER_ID"]
+          ruled = os.environ["RULED_ID"]
           is_publish = os.environ["IS_PUBLISH"] == "true"
 
           packages = sorted(glob.glob("artifacts/*.nupkg"))
@@ -167,14 +167,13 @@ jobs:
           problems = []
           pid = text("id")
 
-          # W5: the placeholder id may be PACKED (dry runs need an artifact to audit)
-          # but must never be PUSHED. This is the owner-decision gate in executable
-          # form: publishing becomes possible only when the csproj carries a ruled id.
-          if is_publish and pid == placeholder:
+          # W5 (ruled 2026-08-30): the packed id must EQUAL the ruling, dry runs
+          # included. A drifted id would either fail the Trusted Publishing policy
+          # glob or, worse, claim a second nuget.org id forever.
+          if pid != ruled:
               problems.append(
-                  "PackageId is still the W5 placeholder %r. Ruling the final id in "
-                  "the csproj (and adding it to the Trusted Publishing policy glob) "
-                  "is required before anything publishes." % placeholder)
+                  "PackageId %r does not match the W5-ruled id %r. The csproj and "
+                  "the Trusted Publishing policy glob must both carry the ruling." % (pid, ruled))
 
           if text("version") != version:
               problems.append("<version> is %r but the run says %r" % (text("version"), version))
