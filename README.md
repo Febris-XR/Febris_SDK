@@ -45,7 +45,20 @@ run if that stops being true. The C++ SDK restores three native packages at buil
 nlohmann.json, rapidxml) and exports a versioned flat C ABI, so consumers bind to
 `FebrisSimApi.h` plus the DLL and never to the C++ classes.
 
-## Building each SDK
+## Getting the SDKs
+
+You are not expected to build these yourself. Each version tag makes CI produce both artifacts
+from the same source:
+
+- **C#**: a NuGet package, built and published by `pack.yml`. Until the final package id is ruled
+  the workflow packs but refuses to push, so for now the C# route is the source build below.
+- **C++**: a prebuilt Windows x64 bundle attached to the GitHub Release for the tag by
+  `release-cpp.yml` -- `FebrisSimApi.h`, the DLL and the import library, with a `SHA256SUMS` to
+  verify the download. Binaries are never committed to git; they exist only as Release assets
+  built from the tagged source, and the release step runs only after the conformance harness
+  proves the DLL byte-matches the C# SDK.
+
+## Building from source (optional)
 
 ```bash
 # C# (any OS with the .NET 8 SDK)
@@ -147,9 +160,8 @@ Stated here rather than left to be discovered:
 - **Unity and Unreal glue are not in this repository yet.** The C++ SDK is here and
   conformance-verified against the C# SDK, but the engine-side glue packages are still to come.
   Unreal and native hosts can consume the C ABI (`cpp/FebrisSimApi.h`) directly today.
-- **The C++ SDK has no binary distribution channel yet.** Build it from source with the two
-  commands above. A vcpkg port and prebuilt GitHub Releases binaries with checksums are the
-  recorded plan.
+- **The C++ SDK's binary channel is GitHub Releases only for now.** `release-cpp.yml` attaches
+  the prebuilt bundle to each version tag; the vcpkg port is still to come.
 - **Directory names are historical.** `FebrisCShapTesting` is a typo that predates the extraction,
   and `FileSystemInitalizer` is a misspelled public type. Both are load-bearing names now, so
   neither is being renamed casually.

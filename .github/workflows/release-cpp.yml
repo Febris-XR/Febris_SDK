@@ -1,0 +1,113 @@
+name: release-cpp
+
+# Build the native C++ SDK, prove cross-SDK byte parity against the C# SDK in
+# the same checkout, and (on a version tag) attach the binary bundle to a
+# GitHub Release. Consumers download the bundle; building from source stays
+# possible but is never required.
+#
+# == WHAT SHIPS ====================================================================
+#
+# febris-simulation-sdk-cpp-<tag>-win-x64.zip containing:
+#   FebrisSimApi.h                     the public C ABI, the ONLY promised surface
+#   Febris.CppSimulationLibrary.dll    x64 Release
+#   Febris.CppSimulationLibrary.lib    the import library
+#   LICENSE, NOTICE
+# plus SHA256SUMS covering the zip. Binaries are never committed to git; they
+# exist only as Release assets built from the tagged source by this workflow.
+#
+# == THE RELEASE GATE IS BYTE PARITY ===============================================
+#
+# The conformance harness runs before anything is published: the same authored
+# scenarios go through the C# public API and through the exported C ABI of the
+# freshly built DLL (LoadLibrary/GetProcAddress, customer-grade binding), and
+# every scenario must be BYTE-IDENTICAL. A wire divergence between the two
+# SDKs cannot ship, which is the lock-step guarantee the repo exists to keep.
+#
+# == QUOTA DISCIPLINE ==============================================================
+#
+# Windows runners burn minutes at 2x. This workflow runs ONLY on version tags
+# and manual dispatch -- never per push or per PR. A dispatch run is a full
+# rehearsal (build + conformance + bundle + checksums) that publishes nothing.
+#
+# The same v* tag also triggers pack.yml, so one tag releases both SDKs at the
+# same version: the C# package to nuget.org (once the W5 id is ruled) and the
+# C++ bundle to GitHub Releases.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: 'true'
+  DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 'true'
+
+jobs:
+  build-verify-release:
+    name: build + conformance + bundle
+    runs-on: windows-latest
+    timeout-minutes: 40
+    permissions:
+      # gh release create needs write; everything before it only reads.
+      contents: write
+    steps:
+      # Pinned to full commit SHAs, not tags (same pins as pack.yml).
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # The conformance harness drives the C# side, so the pinned .NET SDK
+      # matters here exactly as it does in pack.yml.
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Restore native packages
+        shell: cmd
+        run: nuget restore cpp\packages.config -PackagesDirectory cpp\packages
+
+      - name: Build the C++ SDK (x64 Release)
+        shell: cmd
+        # vswhere lives at a fixed path on every VS2022 install, runner
+        # editions included -- same discovery the conformance probe scripts use.
+        run: |
+          set "VSWHERE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
+          for /f "usebackq tokens=*" %%i in (`"%VSWHERE%" -latest -products * -requires Microsoft.Component.MSBuild -property installationPath`) do set "VSDIR=%%i"
+          call "%VSDIR%\Common7\Tools\VsDevCmd.bat" -no_logo -arch=amd64
+          msbuild cpp\Febris.CppSimulationLibrary.vcxproj -p:Configuration=Release -p:Platform=x64 -v:m -nologo
+
+      - name: Cross-SDK conformance (byte parity, the release gate)
+        shell: bash
+        run: |
+          bash conformance/compare.sh
+          bash conformance/compare-lifecycle.sh
+
+      - name: Bundle + checksums
+        shell: bash
+        run: |
+          REF="${GITHUB_REF_NAME}"
+          NAME="febris-simulation-sdk-cpp-${REF}-win-x64"
+          mkdir -p "bundle/${NAME}"
+          cp cpp/FebrisSimApi.h \
+             cpp/x64/Release/Febris.CppSimulationLibrary.dll \
+             cpp/x64/Release/Febris.CppSimulationLibrary.lib \
+             LICENSE NOTICE \
+             "bundle/${NAME}/"
+          cd bundle
+          7z a -tzip "${NAME}.zip" "${NAME}" > /dev/null
+          sha256sum "${NAME}.zip" > SHA256SUMS
+          cat SHA256SUMS
+
+      - name: Publish GitHub Release (version tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            bundle/*.zip bundle/SHA256SUMS \
+            --title "Febris Simulation SDK ${GITHUB_REF_NAME}" \
+            --notes "Native C++ SDK for Windows x64: FebrisSimApi.h (flat extern \"C\" ABI, version 1) plus the DLL and import library. Byte-parity verified against the C# SDK at this tag by the conformance harness in this repository. Verify the download against SHA256SUMS. The C# SDK for the same tag ships via NuGet (see pack.yml)."

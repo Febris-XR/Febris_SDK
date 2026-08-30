@@ -6,7 +6,14 @@ rem reaches is header-only after the port (StatementFactoring.h, XApiJson.h,
 rem inline model ctors); .cpp files are only added here when a link error
 rem proves a definition lives out-of-line.
 setlocal
-call "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" -no_logo -arch=amd64
+rem Locate VS2022 via vswhere (fixed path on every install, editions and CI
+rem runners included) instead of hardcoding the Community path.
+set "VSWHERE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
+if exist "%VSWHERE%" (
+  for /f "usebackq tokens=*" %%i in (`"%VSWHERE%" -latest -products * -requires Microsoft.Component.MSBuild -property installationPath`) do set "VSDIR=%%i"
+)
+if not defined VSDIR set "VSDIR=C:\Program Files\Microsoft Visual Studio\2022\Community"
+call "%VSDIR%\Common7\Tools\VsDevCmd.bat" -no_logo -arch=amd64
 set ROOT=%~dp0..\..\cpp
 set OUT=%~dp0build
 if not exist "%OUT%" mkdir "%OUT%"
