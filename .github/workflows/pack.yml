@@ -1,4 +1,7 @@
-name: pack
+# The FILE stays pack.yml: the nuget.org Trusted Publishing policy binds to the
+# workflow file path, so renaming the file breaks the OIDC handshake. Only the
+# display name below is free to change.
+name: release-csharp
 
 # Pack the Febris xAPI simulation SDK and push it to nuget.org, versioned from the
 # tag that triggered the run.
