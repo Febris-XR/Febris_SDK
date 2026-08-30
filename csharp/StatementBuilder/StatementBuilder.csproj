@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!-- EOL-1 (HANDOFF_03 W1): retargeted from netcoreapp3.1, which left support in
+         December 2022 and FailFasts on current dev boxes. The SDK it drives is
+         netstandard2.0 and did not change. -->
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FebrisCSharp\Febris.CsharpSimulationLibraryNetStandard.csproj" />
+  </ItemGroup>
+
+</Project>

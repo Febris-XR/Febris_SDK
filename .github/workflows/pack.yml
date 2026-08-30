@@ -1,0 +1,264 @@
+name: pack
+
+# Pack the Febris xAPI simulation SDK and push it to nuget.org, versioned from the
+# tag that triggered the run.
+#
+# == THE PACKAGE ID IS STILL AN OWNER DECISION (HANDOFF_03 W5) =====================
+#
+# The csproj deliberately carries the placeholder id Febris.Simulation.XApiSdk with a
+# comment saying "do NOT push this id anywhere". A nuget.org id, once pushed, exists
+# forever: the version can be unlisted but the id is claimed and the number burned.
+# So this workflow REFUSES the publish path while the packed id equals the
+# placeholder. Dry runs still work, so CI is rehearsable end to end before the id is
+# ruled. When the owner records the final id in the csproj, the guard clears itself.
+#
+# == WHAT THE AUDIT ENFORCES =======================================================
+#
+# The SDK is a LEAF by design: netstandard2.0, one dependency (Newtonsoft.Json), no
+# Febris.* dependency of any kind. A Febris.* dependency appearing here means a
+# ProjectReference was added across the tier boundary, which is exactly the coupling
+# the SDK exists to avoid -- games and simulations embed this package into
+# proprietary titles, and it must stay weightless. The audit fails the job before
+# the push step on any violation. Do not loosen it.
+#
+# Credential route: Trusted Publishing (OIDC). No stored secret. The nuget.org
+# policy must name this repository, this workflow file, and the environment
+# nuget-release, with the FINAL ruled PackageId in its glob list.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to pack, without the leading v (e.g. 0.1.0)'
+        required: true
+      dry_run:
+        description: 'Pack and audit, but do not push to nuget.org'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: 'true'
+  DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 'true'
+  NUGET_SOURCE: 'https://api.nuget.org/v3/index.json'
+  PROJECT: 'csharp/FebrisCSharp/Febris.CsharpSimulationLibraryNetStandard.csproj'
+  # The W5 placeholder. The refusal below compares the PACKED id against this value,
+  # so ruling the final id in the csproj is the single change that arms publishing.
+  PLACEHOLDER_ID: 'Febris.Simulation.XApiSdk'
+
+jobs:
+  verify:
+    name: build + test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      # Pinned to full commit SHAs, not tags. A tag is mutable: whoever can move v4
+      # can run code inside a job. Same pins as the keystone's pack.yml.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Build
+        shell: bash
+        run: dotnet build csharp/febris-xapi-sdk.sln -c Release
+
+      # The tests carry the InternalsVisibleTo target assembly, built in THIS repo.
+      # Green here proves the E4 split held: no cross-repo internals exposure.
+      - name: Test
+        shell: bash
+        run: dotnet test csharp/febris-xapi-sdk.sln -c Release --no-build
+
+  publish:
+    name: pack + push
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Add a required reviewer to this environment in repository settings to make the
+    # push a human-approved step. The nuget.org Trusted Publishing policy for this
+    # repository binds to this environment name.
+    environment: nuget-release
+
+    # Trusted Publishing needs id-token: write so the job can ask GitHub for a
+    # short-lived OIDC token. Naming any permission drops every other scope to none.
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Resolve the version
+        id: version
+        shell: bash
+        # The dispatch input arrives through the ENVIRONMENT, never through expression
+        # interpolation into the script body: an interpolated value is pasted in as
+        # literal text before bash starts and would execute before validation.
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          VERSION_INPUT: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            VERSION="$VERSION_INPUT"
+          else
+            VERSION="${GITHUB_REF_NAME#v}"
+          fi
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::'$VERSION' is not a NuGet version. Expected MAJOR.MINOR.PATCH[-prerelease]."
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Packing $VERSION"
+
+      - name: Pack
+        shell: bash
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          dotnet pack "$PROJECT" -c Release \
+            -p:Version="$VERSION" \
+            -p:ContinuousIntegrationBuild=true \
+            -o artifacts
+          ls -l artifacts
+
+      # THE GATE. Everything above is local and reversible; everything below the
+      # push is permanent.
+      - name: Audit the packed nuspec
+        shell: bash
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          IS_PUBLISH: ${{ github.event_name == 'push' || !inputs.dry_run }}
+        run: |
+          python3 - <<'PY'
+          import os, sys, glob, zipfile
+          import xml.etree.ElementTree as ET
+
+          version = os.environ["VERSION"]
+          placeholder = os.environ["PLACEHOLDER_ID"]
+          is_publish = os.environ["IS_PUBLISH"] == "true"
+
+          packages = sorted(glob.glob("artifacts/*.nupkg"))
+          if len(packages) != 1:
+              print("audit FAILED: expected exactly one .nupkg, found %d" % len(packages))
+              sys.exit(1)
+
+          zf = zipfile.ZipFile(packages[0])
+          root = ET.fromstring(zf.read(next(n for n in zf.namelist() if n.endswith(".nuspec"))))
+          ns = root.tag.split("}")[0].strip("{")
+          md = root.find("{%s}metadata" % ns)
+
+          def text(tag):
+              el = md.find("{%s}%s" % (ns, tag))
+              return (el.text or "").strip() if el is not None else ""
+
+          problems = []
+          pid = text("id")
+
+          # W5: the placeholder id may be PACKED (dry runs need an artifact to audit)
+          # but must never be PUSHED. This is the owner-decision gate in executable
+          # form: publishing becomes possible only when the csproj carries a ruled id.
+          if is_publish and pid == placeholder:
+              problems.append(
+                  "PackageId is still the W5 placeholder %r. Ruling the final id in "
+                  "the csproj (and adding it to the Trusted Publishing policy glob) "
+                  "is required before anything publishes." % placeholder)
+
+          if text("version") != version:
+              problems.append("<version> is %r but the run says %r" % (text("version"), version))
+          if not text("authors") or text("authors") == pid:
+              problems.append("<authors> is the dotnet pack default. Set <Authors> in the csproj.")
+          if not text("description") or text("description") == "Package Description":
+              problems.append("<description> is the dotnet pack default.")
+
+          lic = md.find("{%s}license" % ns)
+          if lic is None or lic.get("type") != "expression" or (lic.text or "").strip() != "Apache-2.0":
+              problems.append("<license> is not the Apache-2.0 expression. THIS IS A RELICENSING BUG.")
+
+          repo = md.find("{%s}repository" % ns)
+          url = ((repo.get("url") if repo is not None else "") or "").lower()
+          if is_publish and not url.startswith("https://github.com/"):
+              problems.append(
+                  "<repository url> is %r, not a public github url. A workshop checkout "
+                  "stamps its own origin; pack from CI." % url)
+
+          for dep in md.iter("{%s}dependency" % ns):
+              did = dep.get("id", "")
+              if did.startswith("Febris."):
+                  problems.append(
+                      "depends on %s. The SDK is a LEAF: games embed it into proprietary "
+                      "titles and it must carry no platform dependency. A Febris.* edge "
+                      "here is a tier-boundary violation, not a packaging detail." % did)
+              elif not (dep.get("version") or "").strip():
+                  problems.append("dependency %s carries no version constraint" % did)
+
+          # No test assembly may ride along inside the package.
+          strays = [n for n in zf.namelist() if n.lower().endswith(".dll") and "test" in n.lower()]
+          if strays:
+              problems.append("test assemblies inside the package: %s" % strays)
+
+          if problems:
+              print("nuspec audit FAILED. Nothing has been pushed to nuget.org.\n")
+              for p in problems:
+                  print("  - %s" % p)
+              sys.exit(1)
+          print("nuspec audit passed: %s %s" % (pid, version))
+          PY
+
+      - name: Upload the package
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sdk-${{ steps.version.outputs.version }}
+          path: artifacts/*.nupkg
+          if-no-files-found: warn
+
+      # Trusted Publishing: trade a GitHub OIDC token for a temporary nuget.org key.
+      # Keys live ONE HOUR and each token buys exactly one key, so this sits
+      # immediately before the push. It carries the push step's own condition: a dry
+      # run must not mint a credential it will never use.
+      #
+      # `user` is the nuget.org PROFILE NAME (case differs from the GitHub login).
+      - name: NuGet login (OIDC to a short-lived key)
+        if: ${{ github.event_name == 'push' || !inputs.dry_run }}
+        id: login
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
+        with:
+          user: Trget88
+
+      - name: Push to nuget.org
+        if: ${{ github.event_name == 'push' || !inputs.dry_run }}
+        shell: bash
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${NUGET_API_KEY}" ]; then
+            echo "::error::NuGet/login returned no key. Check that the nuget.org Trusted"
+            echo "::error::Publishing policy names this repository, the workflow file"
+            echo "::error::pack.yml, the environment nuget-release, and the RULED PackageId"
+            echo "::error::in its glob list. The policies for the other repositories do"
+            echo "::error::NOT cover this one."
+            exit 1
+          fi
+          dotnet nuget push artifacts/*.nupkg \
+            --source "$NUGET_SOURCE" \
+            --api-key "$NUGET_API_KEY" \
+            --skip-duplicate
+
+      - name: Dry run summary
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+        run: 'echo "Dry run: the package was built and audited but NOT pushed."'

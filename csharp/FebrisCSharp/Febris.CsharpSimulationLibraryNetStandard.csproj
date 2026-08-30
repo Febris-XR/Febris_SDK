@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <!-- NuGet pack metadata (the gated SDK deliverable, dotnet pack -c Release). -->
+  <PropertyGroup>
+    <!-- PLACEHOLDER PackageId. The public package name is an owner decision that
+         rides the nuget.org account name (QUESTIONS.md Q16). Rename before any
+         publish. Do NOT push this id anywhere.
+
+         The rationale here previously cited the de-branding mandate in
+         docs/OSS_SDK_DISTRIBUTION.md section 1. CORRECTED 2026-08-28: that mandate
+         was reversed on 2026-08-27. QUESTIONS.md records "Brand (Q17): stays
+         Febris, no de-branding anywhere", and the distribution doc now carries the
+         correction inline. The id is still a placeholder, for the account-name
+         reason above rather than for de-branding. -->
+    <PackageId>Febris.Simulation.XApiSdk</PackageId>
+    <Version>0.1.0-preview</Version>
+    <Authors>Febris</Authors>
+    <Company>Febris</Company>
+    <Description>On-device xAPI statement builder for simulations and games. Builds and updates xAPI 1.0.3 statements in-process -- no HTTP, no database -- and hands the emitted statement off to a host application via file drop or Android Intent.</Description>
+    <!-- Apache-2.0 is the ratified license posture for the SDK tier
+         (docs/OSS_SDK_DISTRIBUTION.md). The LICENSE file itself lands in the
+         public SDK repo at extraction time (OSS_RELEASE_PLAN pipeline). The
+         SPDX expression here is the package-level declaration. -->
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <!-- RepositoryUrl deliberately omitted: the workshop repo is private; the
+         public SDK monorepo URL is set at extraction. -->
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- MDM-T2: expose internals to the parity / behavior test project so
+         StatementCheck, ActorIsCorrect, MemberIsCorrect, AccountIsCorrect,
+         AutoUpdateScaledScore, etc. can be tested directly instead of having
+         to go through the public Initializer/StatementHandler entry points
+         (which require an OS + Handler + parsed JObject and so are awkward
+         to drive from a unit test). -->
+    <InternalsVisibleTo Include="Febris.SimulationLibrary.Tests" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,62 @@
+Febris xAPI Simulation SDK (C#)
+Copyright 2026 Febris
+
+This product includes software developed by Febris.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed
+under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied. See the License for the
+specific language governing permissions and limitations under the License.
+
+--------------------------------------------------------------------------------
+THIRD-PARTY DEPENDENCIES
+
+The library takes exactly one dependency, which it does not redistribute:
+
+  Newtonsoft.Json (13.0.1)
+  Copyright (c) 2007 James Newton-King
+  MIT License -- https://licenses.nuget.org/MIT
+  https://github.com/JamesNK/Newtonsoft.Json
+
+  Resolved from nuget.org at build time and referenced, not vendored. No source
+  or binary from it is included in this repository or in any package built from
+  it.
+
+--------------------------------------------------------------------------------
+BUILD AND TEST DEPENDENCIES
+
+These are used to build and test this repository. They are not referenced by the
+library, are not part of any package built from it, and are not redistributed:
+
+  xunit (2.9.2), xunit.runner.visualstudio (2.8.2)
+  Copyright (c) .NET Foundation and Contributors
+  Apache-2.0 -- https://github.com/xunit/xunit
+
+  FluentAssertions (6.12.0)
+  Copyright (c) Dennis Doomen
+  Apache-2.0 -- https://github.com/fluentassertions/fluentassertions
+
+  Microsoft.NET.Test.Sdk (17.11.0), coverlet.collector (6.0.2)
+  Copyright (c) Microsoft Corporation, and Copyright (c) Toni Solarin-Sodara
+  MIT License
+
+No other third-party code is included, referenced or redistributed.
+
+--------------------------------------------------------------------------------
+ON THE xAPI SPECIFICATION
+
+The statement shapes and property names this library emits follow the Experience
+API (xAPI) specification, published by the Advanced Distributed Learning
+Initiative at https://github.com/adlnet/xAPI-Spec and licensed Apache-2.0.
+
+This is an independent implementation. It is not produced, endorsed or certified
+by ADL, and no ADL specification text is reproduced here.
+
+The verb and extension IRIs this library emits are in a Febris-controlled
+namespace and are not part of the xAPI specification.

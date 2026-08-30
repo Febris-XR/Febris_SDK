@@ -1,0 +1,339 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Enums">
+      <UniqueIdentifier>{3bff3b23-459f-4ff7-9dbc-005e78cf0ae7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FileSystem">
+      <UniqueIdentifier>{5e238d70-f89e-4ea6-a511-56d89b22a648}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Models">
+      <UniqueIdentifier>{3d51cfbf-288d-4c04-9dc7-413e20ceb8ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SharedDetails">
+      <UniqueIdentifier>{5a6b1ad2-8bad-4557-b6c0-bd198fe39382}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Statement">
+      <UniqueIdentifier>{9c9791e5-c391-4671-9cff-d72e8db450ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="StaticDetails">
+      <UniqueIdentifier>{f7facf05-4d06-4290-8422-83ab780a5f00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Models\xAPI">
+      <UniqueIdentifier>{2b062c74-71d0-4dbb-98fc-fe3f539f55d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Helpers">
+      <UniqueIdentifier>{7fe2cc8d-599d-43b4-80f7-e477f1e7dd1b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Models">
+      <UniqueIdentifier>{9b89fb0c-0e84-4aaa-a2bd-720d95b29e3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Helpers">
+      <UniqueIdentifier>{2690e341-3005-4122-a13f-b91cbcc58d31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\SharedDetails">
+      <UniqueIdentifier>{72812e1a-eca8-4785-9088-437d151cc469}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Statement">
+      <UniqueIdentifier>{8260987e-7e89-47ed-9dfa-800781ee5b92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\StaticDetails">
+      <UniqueIdentifier>{1a8e6342-6c60-4576-9fba-3ed61d10df57}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Enums">
+      <UniqueIdentifier>{c31a74da-2995-42ed-a155-e96cd1e20849}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\FileSystem">
+      <UniqueIdentifier>{fa6949e7-0fbd-436e-bc37-6ce15f9535b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Service">
+      <UniqueIdentifier>{ab1273a9-ec45-4d6e-b13e-4b693d6f6e33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Service">
+      <UniqueIdentifier>{73492620-dfbc-4b51-bbb9-c1f2f57b669e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FebrisCppIntegration.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Statement.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="StatementReference.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Actor.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Attachment.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Authority.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Context.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Extensions.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Result.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Verb.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Version.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="String_Helpers.h">
+      <Filter>Header Files\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="TestingData.h">
+      <Filter>Header Files\SharedDetails</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedDetails.h">
+      <Filter>Header Files\SharedDetails</Filter>
+    </ClInclude>
+    <ClInclude Include="Initializer.h">
+      <Filter>Header Files\Statement</Filter>
+    </ClInclude>
+    <ClInclude Include="FileNameHandler.h">
+      <Filter>Header Files\Statement</Filter>
+    </ClInclude>
+    <ClInclude Include="JSONHandler.h">
+      <Filter>Header Files\Statement</Filter>
+    </ClInclude>
+    <ClInclude Include="StatementHandler.h">
+      <Filter>Header Files\Statement</Filter>
+    </ClInclude>
+    <ClInclude Include="StatementFactoring.h">
+      <Filter>Header Files\Statement</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticDetails.h">
+      <Filter>Header Files\StaticDetails</Filter>
+    </ClInclude>
+    <ClInclude Include="VerbEnums.h">
+      <Filter>Header Files\Enums</Filter>
+    </ClInclude>
+    <ClInclude Include="XAPIProperties.h">
+      <Filter>Header Files\Enums</Filter>
+    </ClInclude>
+    <ClInclude Include="ResultOptions.h">
+      <Filter>Header Files\Enums</Filter>
+    </ClInclude>
+    <ClInclude Include="ContextOptions.h">
+      <Filter>Header Files\Enums</Filter>
+    </ClInclude>
+    <ClInclude Include="ExtensionIRIOptions.h">
+      <Filter>Header Files\Enums</Filter>
+    </ClInclude>
+    <ClInclude Include="ContentType.h">
+      <Filter>Header Files\Enums</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystemInitalizer.h">
+      <Filter>Header Files\FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystem.h">
+      <Filter>Header Files\FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Member.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Account.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Time_Helpers.h">
+      <Filter>Header Files\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="FileInfo_Helpers.h">
+      <Filter>Header Files\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryMappedFile.h">
+      <Filter>Header Files\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="XMLConvert.h">
+      <Filter>Header Files\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="ContextActivities.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Definition.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Score.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="ExpectedOperatingSystem.h">
+      <Filter>Header Files\Enums</Filter>
+    </ClInclude>
+    <ClInclude Include="IEnvironmentHandler.h">
+      <Filter>Header Files\Service</Filter>
+    </ClInclude>
+    <ClInclude Include="AndroidHandler.h">
+      <Filter>Header Files\Service</Filter>
+    </ClInclude>
+    <ClInclude Include="iOSHandler.h">
+      <Filter>Header Files\Service</Filter>
+    </ClInclude>
+    <ClInclude Include="WinMobileHandler.h">
+      <Filter>Header Files\Service</Filter>
+    </ClInclude>
+    <ClInclude Include="WinPCHandler.h">
+      <Filter>Header Files\Service</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AttachmentOptions.cpp">
+      <Filter>Enums</Filter>
+    </ClCompile>
+    <ClCompile Include="ContentType.cpp">
+      <Filter>Enums</Filter>
+    </ClCompile>
+    <ClCompile Include="ContextOptions.cpp">
+      <Filter>Enums</Filter>
+    </ClCompile>
+    <ClCompile Include="ExtensionIRIOptions.cpp">
+      <Filter>Enums</Filter>
+    </ClCompile>
+    <ClCompile Include="ResultOptions.cpp">
+      <Filter>Enums</Filter>
+    </ClCompile>
+    <ClCompile Include="VerbEnums.cpp">
+      <Filter>Enums</Filter>
+    </ClCompile>
+    <ClCompile Include="XAPIProperties.cpp">
+      <Filter>Enums</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSystem.cpp">
+      <Filter>FileSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSystemInitalizer.cpp">
+      <Filter>FileSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Actor.cpp">
+      <Filter>Models\xAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="Attachment.cpp">
+      <Filter>Models\xAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="Authority.cpp">
+      <Filter>Models\xAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="Context.cpp">
+      <Filter>Models\xAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="Extensions.cpp">
+      <Filter>Models\xAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>Models\xAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="Result.cpp">
+      <Filter>Models\xAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="Statement.cpp">
+      <Filter>Models\xAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="StatementReference.cpp">
+      <Filter>Models\xAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="Verb.cpp">
+      <Filter>Models\xAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="Version.cpp">
+      <Filter>Models\xAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedDetails.cpp">
+      <Filter>SharedDetails</Filter>
+    </ClCompile>
+    <ClCompile Include="TestingData.cpp">
+      <Filter>SharedDetails</Filter>
+    </ClCompile>
+    <ClCompile Include="FileNameHandler.cpp">
+      <Filter>Statement</Filter>
+    </ClCompile>
+    <ClCompile Include="Initializer.cpp">
+      <Filter>Statement</Filter>
+    </ClCompile>
+    <ClCompile Include="JSONHandler.cpp">
+      <Filter>Statement</Filter>
+    </ClCompile>
+    <ClCompile Include="StatementFactoring.cpp">
+      <Filter>Statement</Filter>
+    </ClCompile>
+    <ClCompile Include="StatementHandler.cpp">
+      <Filter>Statement</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticDetails.cpp">
+      <Filter>StaticDetails</Filter>
+    </ClCompile>
+    <ClCompile Include="String_Helpers.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="Time_Helpers.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="FileInfo_Helpers.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoryMappedFile.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="Disposable_Helper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="XMLConvert.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="ExpectedOperatingSystem.cpp">
+      <Filter>Enums</Filter>
+    </ClCompile>
+    <ClCompile Include="IEnvironmentHandler.cpp">
+      <Filter>Service</Filter>
+    </ClCompile>
+    <ClCompile Include="AndroidHandler.cpp">
+      <Filter>Service</Filter>
+    </ClCompile>
+    <ClCompile Include="iOSHandler.cpp">
+      <Filter>Service</Filter>
+    </ClCompile>
+    <ClCompile Include="WinMobileHandler.cpp">
+      <Filter>Service</Filter>
+    </ClCompile>
+    <ClCompile Include="WinPCHandler.cpp">
+      <Filter>Service</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+</Project>

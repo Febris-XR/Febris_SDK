@@ -1,0 +1,14 @@
+# build output
+bin/
+obj/
+artifacts/
+.vs/
+*.user
+# C++ build + restored native packages (nuget restore recreates packages/)
+cpp/x64/
+cpp/packages/
+cpp/Febris.C.*/
+# conformance harness output + probe binaries
+conformance/out/
+conformance/probe/build/
+conformance/probe-abi/build/
