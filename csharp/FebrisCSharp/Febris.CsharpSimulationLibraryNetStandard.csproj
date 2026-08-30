@@ -23,8 +23,12 @@
          public SDK repo at extraction time (OSS_RELEASE_PLAN pipeline). The
          SPDX expression here is the package-level declaration. -->
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <!-- RepositoryUrl deliberately omitted: the workshop repo is private; the
-         public SDK monorepo URL is set at extraction. -->
+    <!-- RepositoryUrl deliberately omitted: the workshop repo is private. The
+         public URL is stamped by pack.yml at pack time (-p:RepositoryUrl from
+         GITHUB_REPOSITORY), which is also what satisfies the publish audit's
+         public-github-url requirement. (The earlier "set at extraction" plan
+         was never implemented; the audit caught the empty value on the first
+         real publish attempt, 2026-08-30.) -->
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 

@@ -131,9 +131,16 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           set -euo pipefail
+          # RepositoryUrl is stamped HERE, not in the csproj: the workflow knows
+          # which public repository it runs in, so the value is truthful by
+          # construction (forks stamp their own fork). The csproj omits it on
+          # purpose, and the audit's publish path requires a public github url --
+          # the gap that stopped the first real publish attempt (2026-08-30).
           dotnet pack "$PROJECT" -c Release \
             -p:Version="$VERSION" \
             -p:ContinuousIntegrationBuild=true \
+            -p:RepositoryUrl="https://github.com/${GITHUB_REPOSITORY}" \
+            -p:RepositoryType=git \
             -o artifacts
           ls -l artifacts
 
