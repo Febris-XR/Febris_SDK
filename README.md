@@ -17,15 +17,30 @@ Unity build, a Windows executable and an Android app without any of them agreein
 
 ---
 
-## The package name is not settled yet, so there is no install line
+## Installing
 
-This repository is source-first for now. The `PackageId` in the csproj is a placeholder, and the
-csproj says in as many words not to publish it. The final name is an owner decision that is tracked
-alongside the nuget.org account it will be published under.
+Both SDKs are published. You do not need to build either one.
 
-Until that lands, consume this by adding the project to your solution or by building the DLL and
-referencing it. The library is a single `netstandard2.0` project with one NuGet dependency, so both
-routes are short.
+**C#**, from nuget.org:
+
+```
+dotnet add package Febris.Simulation.XApiSdk --version 0.1.0
+```
+
+**C++**, through the Febris vcpkg registry. Add
+`https://github.com/Febris-XR/Febris_VcpkgRegistry` to the `registries` array of your
+`vcpkg-configuration.json`, then:
+
+```
+vcpkg install febris-simulation-sdk
+```
+
+Or take the Windows x64 bundle straight from the
+[latest release](https://github.com/Febris-XR/Febris_SDK/releases): it carries `FebrisSimApi.h`,
+the DLL and the import library, with a `SHA256SUMS` file to verify against.
+
+Adding the project to your own solution still works and is documented below, but it is no longer
+the expected route.
 
 ---
 
@@ -54,8 +69,10 @@ nlohmann.json, rapidxml) and exports a versioned flat C ABI, so consumers bind t
 You are not expected to build these yourself. Each version tag makes CI produce both artifacts
 from the same source:
 
-- **C#**: a NuGet package, built and published by `pack.yml`. Until the final package id is ruled
-  the workflow packs but refuses to push, so for now the C# route is the source build below.
+- **C#**: a NuGet package, built and published to nuget.org by `pack.yml` through Trusted
+  Publishing, so no API key is stored anywhere. The published id is
+  `Febris.Simulation.XApiSdk`, and the pack step asserts that the id and the version match the
+  tag before it will push.
 - **C++**: a prebuilt Windows x64 bundle attached to the GitHub Release for the tag by
   `release-cpp.yml` -- `FebrisSimApi.h`, the DLL and the import library, with a `SHA256SUMS` to
   verify the download. Binaries are never committed to git; they exist only as Release assets
