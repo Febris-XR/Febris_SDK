@@ -39,6 +39,16 @@ Or take the Windows x64 bundle straight from the
 [latest release](https://github.com/Febris-XR/Febris_SDK/releases): it carries `FebrisSimApi.h`,
 the DLL and the import library, with a `SHA256SUMS` file to verify against.
 
+From v0.1.1 onward the bundle also carries build provenance, so you can prove where it came from
+and not only that it arrived intact:
+
+```sh
+gh attestation verify febris-simulation-sdk-cpp-<version>-win-x64.zip --repo Febris-XR/Febris_SDK
+```
+
+There is no key to fetch and no keyring to trust. The attestation binds the bytes to the release
+workflow in this repository at that tag.
+
 Adding the project to your own solution still works and is documented below, but it is no longer
 the expected route.
 
@@ -75,9 +85,10 @@ from the same source:
   tag before it will push.
 - **C++**: a prebuilt Windows x64 bundle attached to the GitHub Release for the tag by
   `release-cpp.yml` -- `FebrisSimApi.h`, the DLL and the import library, with a `SHA256SUMS` to
-  verify the download. Binaries are never committed to git; they exist only as Release assets
-  built from the tagged source, and the release step runs only after the conformance harness
-  proves the DLL byte-matches the C# SDK.
+  verify the download and, from v0.1.1, a build-provenance attestation to verify its origin.
+  Binaries are never committed to git. They exist only as Release assets built from the tagged
+  source, and the release step runs only after the conformance harness proves the DLL byte-matches
+  the C# SDK.
 
 ## Building from source (optional)
 
