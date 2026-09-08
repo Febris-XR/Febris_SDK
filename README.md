@@ -192,11 +192,15 @@ Stated here rather than left to be discovered:
 - **Unity and Unreal glue are not in this repository yet.** The C++ SDK is here and
   conformance-verified against the C# SDK, but the engine-side glue packages are still to come.
   Unreal and native hosts can consume the C ABI (`cpp/FebrisSimApi.h`) directly today.
-- **The C++ SDK's binary channel is GitHub Releases only for now.** `release-cpp.yml` attaches
-  the prebuilt bundle to each version tag; the vcpkg port is still to come.
-- **Directory names are historical.** `FebrisCShapTesting` is a typo that predates the extraction,
-  and `FileSystemInitalizer` is a misspelled public type. Both are load-bearing names now, so
-  neither is being renamed casually.
+- **The C++ SDK ships through two channels.** `release-cpp.yml` attaches the prebuilt bundle to
+  each version tag, and the vcpkg port is live in
+  [Febris_VcpkgRegistry](https://github.com/Febris-XR/Febris_VcpkgRegistry) at 0.1.0. The install
+  route is documented above. This bullet used to say the port was still to come, which stopped
+  being true when the registry published and contradicted this file's own install section.
+- **One name is historical.** `FileSystemInitalizer` is a misspelled public type. It is
+  load-bearing now, so it is not being renamed casually. This bullet also used to name a
+  `FebrisCShapTesting` directory. No such directory exists here. The test project is
+  `csharp/FebrisSimulationLibraryTests`, and the misspelled name survives only in the workshop.
 
 ## Versioning
 
