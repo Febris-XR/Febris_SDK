@@ -39,6 +39,16 @@ Or take the Windows x64 bundle straight from the
 [latest release](https://github.com/Febris-XR/Febris_SDK/releases): it carries `FebrisSimApi.h`,
 the DLL and the import library, with a `SHA256SUMS` file to verify against.
 
+From v0.1.1 onward the bundle also carries build provenance, so you can prove where it came from
+and not only that it arrived intact:
+
+```sh
+gh attestation verify febris-simulation-sdk-cpp-<version>-win-x64.zip --repo Febris-XR/Febris_SDK
+```
+
+There is no key to fetch and no keyring to trust. The attestation binds the bytes to the release
+workflow in this repository at that tag.
+
 Adding the project to your own solution still works and is documented below, but it is no longer
 the expected route.
 
@@ -75,9 +85,10 @@ from the same source:
   tag before it will push.
 - **C++**: a prebuilt Windows x64 bundle attached to the GitHub Release for the tag by
   `release-cpp.yml` -- `FebrisSimApi.h`, the DLL and the import library, with a `SHA256SUMS` to
-  verify the download. Binaries are never committed to git; they exist only as Release assets
-  built from the tagged source, and the release step runs only after the conformance harness
-  proves the DLL byte-matches the C# SDK.
+  verify the download and, from v0.1.1, a build-provenance attestation to verify its origin.
+  Binaries are never committed to git. They exist only as Release assets built from the tagged
+  source, and the release step runs only after the conformance harness proves the DLL byte-matches
+  the C# SDK.
 
 ## Building from source (optional)
 
@@ -181,11 +192,15 @@ Stated here rather than left to be discovered:
 - **Unity and Unreal glue are not in this repository yet.** The C++ SDK is here and
   conformance-verified against the C# SDK, but the engine-side glue packages are still to come.
   Unreal and native hosts can consume the C ABI (`cpp/FebrisSimApi.h`) directly today.
-- **The C++ SDK's binary channel is GitHub Releases only for now.** `release-cpp.yml` attaches
-  the prebuilt bundle to each version tag; the vcpkg port is still to come.
-- **Directory names are historical.** `FebrisCShapTesting` is a typo that predates the extraction,
-  and `FileSystemInitalizer` is a misspelled public type. Both are load-bearing names now, so
-  neither is being renamed casually.
+- **The C++ SDK ships through two channels.** `release-cpp.yml` attaches the prebuilt bundle to
+  each version tag, and the vcpkg port is live in
+  [Febris_VcpkgRegistry](https://github.com/Febris-XR/Febris_VcpkgRegistry) at 0.1.0. The install
+  route is documented above. This bullet used to say the port was still to come, which stopped
+  being true when the registry published and contradicted this file's own install section.
+- **One name is historical.** `FileSystemInitalizer` is a misspelled public type. It is
+  load-bearing now, so it is not being renamed casually. This bullet also used to name a
+  `FebrisCShapTesting` directory. No such directory exists here. The test project is
+  `csharp/FebrisSimulationLibraryTests`, and the misspelled name survives only in the workshop.
 
 ## Versioning
 

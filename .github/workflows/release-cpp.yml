@@ -55,6 +55,13 @@ jobs:
     permissions:
       # gh release create needs write; everything before it only reads.
       contents: write
+      # Build provenance. id-token mints the short-lived OIDC token that proves to the public
+      # transparency log which workflow, in which repository, at which commit produced the bytes.
+      # attestations stores the result against this repository. Neither grants anything else, and
+      # no key is created, held or rotated, which is the reason this was chosen over a signing
+      # key. There is nothing here to lose.
+      id-token: write
+      attestations: write
     steps:
       # Pinned to full commit SHAs, not tags (same pins as pack.yml).
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -101,13 +108,53 @@ jobs:
           sha256sum "${NAME}.zip" > SHA256SUMS
           cat SHA256SUMS
 
+      # ATTEST THE BYTES THAT ARE ABOUT TO BE PUBLISHED, and do it before publishing them, so the
+      # attestation covers the exact zip the next step uploads rather than a rebuild of it.
+      #
+      # SHA256SUMS proves integrity, meaning the file did not change in transit. It cannot prove
+      # ORIGIN, because a checksum fetched from the same place as the artifact tells a reader
+      # nothing an attacker who controls that place could not also have written. Provenance closes
+      # that gap: it binds these bytes to this workflow, in this repository, at this commit.
+      - name: Attest the bundle
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: bundle/*.zip
+
       - name: Publish GitHub Release (version tags only)
         if: startsWith(github.ref, 'refs/tags/v')
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # Built with echo rather than one long --notes argument. A multi-line string inside a
+          # YAML block scalar has to carry the block's indentation, which markdown then renders as
+          # a code block, so the notes come from a file instead.
+          ZIP="febris-simulation-sdk-cpp-${GITHUB_REF_NAME}-win-x64.zip"
+          {
+            echo "Native C++ SDK for Windows x64. \`FebrisSimApi.h\` (flat extern \"C\" ABI, version 1)"
+            echo "plus the DLL and the import library. Byte parity against the C# SDK at this tag is"
+            echo "verified by the conformance harness in this repository."
+            echo
+            echo "## Verifying this download"
+            echo
+            echo "Two checks, and the second is the one that matters."
+            echo
+            echo '```sh'
+            echo "sha256sum -c SHA256SUMS"
+            echo "gh attestation verify ${ZIP} --repo Febris-XR/Febris_SDK"
+            echo '```'
+            echo
+            echo "The checksum proves the file did not change in transit. It cannot prove where the"
+            echo "file came from, because you fetched it from the same place as the artifact itself."
+            echo "The attestation proves these exact bytes were produced by this repository's release"
+            echo "workflow at this tag. It needs no key from us and no keyring on your side."
+            echo
+            echo "Releases before v0.1.1 carry checksums only."
+            echo
+            echo "The C# SDK for the same tag ships via NuGet (see \`pack.yml\`)."
+          } > notes.md
           gh release create "${GITHUB_REF_NAME}" \
             bundle/*.zip bundle/SHA256SUMS \
             --title "Febris Simulation SDK ${GITHUB_REF_NAME}" \
-            --notes "Native C++ SDK for Windows x64: FebrisSimApi.h (flat extern \"C\" ABI, version 1) plus the DLL and import library. Byte-parity verified against the C# SDK at this tag by the conformance harness in this repository. Verify the download against SHA256SUMS. The C# SDK for the same tag ships via NuGet (see pack.yml)."
+            --notes-file notes.md
